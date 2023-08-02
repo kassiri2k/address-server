@@ -5,40 +5,52 @@ const createUser = async (req, res) => {
         name,
         phoneNumber
     } = req.body
-    let query = `INSERT INTO (name,phoneNumber) users VALUE(?,?)`
-    try {
-        const result = await db.query(query, (name, phoneNumber));
-        result.then(out => console.log(`User: \n name: ${name} \n phoneNumber: ${phoneNumber}`))
-            .catch(err => console.error('Error when creating an user'))
-    } catch (error) {
-        console.error('Error when creating an user')
-    }
+    let query = `INSERT INTO users (name, phoneNumber) VALUES (?, ?)`
 
+    if (name && phoneNumber) {
+        try {
+            const data = await db.promise().query(query, [name, phoneNumber]);
+            res.status(201).send();
+            console.log('User created', name, phoneNumber)
+        } catch (error) {
+            console.error(error)
+            res.status(500).send('Error creating user');
+        }
+    } else {
+        res.status(400).send('Error when entering the info');
+    }
 }
+
 
 //get user requesthandler
 const getUsers = (req, res) => {
     let query = `SELECT * FROM users`;
-    db.query(query, (err, data) => {
+    db.query(query, (err, result) => {
         if (err) {
             // handle errors when retrieving data
             return res.status(500).send('Error when retrieving data')
         } else {
             // return all user
-            return res.status(200).json({
-                "root": result
-            })
+            return res.status(200).json(result)
         }
     })
 }
 
 // delete user requesthandler
 const deleteUser = (req, res) => {
-    //todo
+    const id = req.params.id;
+    let query = `DELETE FROM users WHERE id=?`;
+    try {
+        db.promise().query(query, [id])
+        console.log(`Users with id = ${id} deleted`)
+    } catch (error) {
+        console.error(error)
+        res.status(500).send('Error deleting user');
+    }
 }
 
 module.exports = {
     createUser,
-    getUser,
+    getUsers,
     deleteUser
 }
