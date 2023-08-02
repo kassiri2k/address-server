@@ -1,15 +1,17 @@
 const db = require('../model/database')
 //create user requesthandler
-const createUser = (req, res) => {
+const createUser = async (req, res) => {
     let {
         name,
         phoneNumber
     } = req.body
-    let query = `INSERT INTO users VALUE(?,?)`
+    let query = `INSERT INTO (name,phoneNumber) users VALUE(?,?)`
     try {
-        db.query(query, )
+        const result = await db.query(query, (name, phoneNumber));
+        result.then(out => console.log(`User: \n name: ${name} \n phoneNumber: ${phoneNumber}`))
+            .catch(err => console.error('Error when creating an user'))
     } catch (error) {
-
+        console.error('Error when creating an user')
     }
 
 }
